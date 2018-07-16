@@ -1,18 +1,20 @@
 package com.workupplan.mongo
 
-import com.mongodb.{DB => MongoDB}
-
-import scala.collection.convert.Wrappers.JSetWrapper
 
 
-class DB private(underlying:MongoDB){
+import com.mongodb.client.MongoDatabase
+
+import scala.collection.convert.Wrappers._
+
+
+class DB private(underlying: MongoDatabase){
 
   def collectionNames =  for(
-    name <- JSetWrapper(underlying.getCollectionNames)
+    name <- JIterableWrapper(underlying.listCollectionNames)
   )yield name
 
 }
 
 object DB {
-  def apply(underlying: MongoDB): DB = new DB(underlying)
+  def apply(underlying: MongoDatabase): DB = new DB(underlying)
 }

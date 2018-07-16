@@ -6,7 +6,7 @@ scalaVersion := "2.12.6"
 
 
 
-libraryDependencies += "org.mongodb" % "mongo-java-driver" % "2.10.1"
+libraryDependencies += "org.mongodb" % "mongo-java-driver" % "3.6.4"
 
 
 // append options passed to the Scala compiler

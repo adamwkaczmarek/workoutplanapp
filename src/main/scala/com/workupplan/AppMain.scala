@@ -6,7 +6,7 @@ object AppMain extends App {
 
   val mongoClient= new MongoClient()
 
-  private val forTestDB: DB = mongoClient.createDB("forTest")
+  private val forTestDB: DB = mongoClient.createDB("twist")
 
   for( name <-forTestDB.collectionNames)println(name)
 
