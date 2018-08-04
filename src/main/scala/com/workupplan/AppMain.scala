@@ -1,8 +1,7 @@
 package com.workupplan
 
-import com.mongodb.client.FindIterable
-import com.mongodb.client.model.Filters
-import com.workupplan.mongo.{DB, DbCollection, MongoClient}
+import com.mongodb.client.model.{Filters, Sorts}
+import com.workupplan.mongo.{DB, MongoClient, Query}
 import org.bson.Document
 
 object AppMain extends App {
@@ -15,19 +14,27 @@ object AppMain extends App {
 
   for( name <-db.collectionNames)println(name)
 
-  val document = new Document()
-  document.append("name","Adam")
-  document.append("mail","adamw.kacmzarek@gmail.com")
+  val document1 = new Document()
+  document1.append("name","Adam")
+  document1.append("surname","Kaczmarek")
+  document1.append("mail","adamw.kacmzarek@gmail.com")
 
-  user += document
+  user += document1
 
-  //val documents = user findAll
+  val document2 = new Document()
+  document2.append("name","Natalia")
+  document2.append("surname","Kaczmarek")
+  document2.append("mail","natak@gmail.com")
 
-  val documents=user find(Filters.eq("name","Adam"))
+  user+=document2
 
 
-  while(documents.hasNext){
-    val document = documents.next()
+
+  val documents=user find(Query(Filters.eq("surname","Kaczmarek")).sort(Sorts.orderBy(Sorts.descending("name"))))
+
+
+  while(documents.iterator.hasNext){
+    val document = documents.iterator.next
     println(document.toJson)
     user.-=(document)
   }
