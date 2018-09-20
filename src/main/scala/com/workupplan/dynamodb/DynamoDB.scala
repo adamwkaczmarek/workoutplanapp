@@ -7,11 +7,13 @@ import com.amazonaws.services.dynamodbv2.model.{AttributeValue, GetItemRequest, 
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDB, AmazonDynamoDBClient}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Future}
+import com.workupplan.utils.Helpers._
 
 object DynamoDB {
 
 
-  def apply(region: Regions): DynamoDB = {
+  def apply(region: Regions)(implicit executionContext: ExecutionContext): DynamoDB = {
     val config = new ClientConfiguration()
       .withTcpKeepAlive(true)
 
@@ -25,18 +27,29 @@ object DynamoDB {
   }
 }
 
-case class DynamoDB(client: AmazonDynamoDB) {
+case class DynamoDB(client: AmazonDynamoDB)(implicit executionContext: ExecutionContext) {
 
-  def getItem(tabelName: String, keyToGet: Map[String, String]):Map[String, AttributeValue] = {
-    val getItemRequest = new GetItemRequest()
-      .withTableName(tabelName)
-      .withKey(keyToGet.map(x => (x._1, new AttributeValue(x._2))).asJava)
-    client.getItem(getItemRequest).getItem.asScala.toMap
+  def getItem(tabelName: String, keyToGet: Map[String, String]):Future[Map[String, AttributeValue]] = {
+   Future {
+     val getItemRequest = new GetItemRequest()
+       .withTableName(tabelName)
+       .withKey(keyToGet.map(x => (x._1, new AttributeValue(x._2))).asJava)
+     client.getItem(getItemRequest).getItem.asScala.toMap
+   }
   }
 
-  def getAllItems(tableName:String):List[Map[String, AttributeValue]]={
-    val scanRequest= new ScanRequest().withTableName(tableName)
-    client.scan(scanRequest).getItems.asScala.map(_.asScala.toMap).toList
+  def getAllItems(tableName:String):Future[List[Map[String, AttributeValue]]]={
+   Future {
+     val scanRequest = new ScanRequest().withTableName(tableName)
+     client.scan(scanRequest).getItems.asScala.map(_.asScala.toMap).toList
+
+   }
   }
+
+  def getRandomItem(tableName:String):Future[Map[String, AttributeValue]]=
+    getAllItems(tableName).map(_.getRandomElement match {
+      case Some(element)=>element
+      case None=>Map.empty
+    })
 
 }

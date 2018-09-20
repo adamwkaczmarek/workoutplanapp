@@ -4,15 +4,17 @@ import akka.actor.{ActorRef, ActorSystem}
 import com.amazonaws.regions.Regions
 import com.workupplan.dynamodb.DynamoDB
 
+import scala.concurrent.ExecutionContext
+
 
 object AppMain extends App {
 
+  private val actorSystem = ActorSystem("workoutplan-system")
+  implicit val ec: ExecutionContext = actorSystem.dispatcher
+
   val dynamoDb= DynamoDB(Regions.US_EAST_1)
 
-  private val actorSystem = ActorSystem("workoutplan-system")
-  private val drawDistance: ActorRef = actorSystem.actorOf(DrawDistanceActor.props(dynamoDb), "draw-distance")
-  private val drawExcercise: ActorRef = actorSystem.actorOf(DrawExerciseActor.props(dynamoDb), "draw-exercise")
-  private val trainingActor: ActorRef = actorSystem.actorOf(TrainingActor.props(drawDistance, drawExcercise,dynamoDb), "training")
+  private val trainingActor: ActorRef = actorSystem.actorOf(TrainingActor.props(dynamoDb), "training")
 
   trainingActor ! (TrainingActor CreateWorkoutplanRequest)
 
