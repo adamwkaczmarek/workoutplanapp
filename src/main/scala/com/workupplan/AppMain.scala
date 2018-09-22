@@ -12,9 +12,9 @@ object AppMain extends App {
   private val actorSystem = ActorSystem("workoutplan-system")
   implicit val ec: ExecutionContext = actorSystem.dispatcher
 
-  val dynamoDb= DynamoDB(Regions.US_EAST_1)
-
-  private val trainingActor: ActorRef = actorSystem.actorOf(TrainingActor.props(dynamoDb), "training")
+  private val dynamoDb= DynamoDB(Regions.US_EAST_1)
+  private val trainingService=TrainingService(dynamoDb)
+  private val trainingActor: ActorRef = actorSystem.actorOf(TrainingActor.props(trainingService), "training")
 
   trainingActor ! (TrainingActor CreateWorkoutplanRequest)
 
